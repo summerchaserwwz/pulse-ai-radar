@@ -1781,10 +1781,10 @@ export default function RadarApp() {
             href={REPOSITORY_URL}
             target="_blank"
             rel="noreferrer"
-            aria-label="查看 PULSE/AI GitHub 开源仓库"
+            aria-label="查看 PULSE/AI GitHub 公开仓库"
           >
             <span className="avatar"><GithubLogo size={17} weight="fill" /></span>
-            <span><strong>开源仓库</strong><small>GitHub 查看源码</small></span>
+            <span><strong>公开仓库</strong><small>GitHub 查看源码</small></span>
             <ArrowUpRight size={15} />
           </a>
         </div>

@@ -243,6 +243,10 @@ npm test
 
 测试覆盖 URL 归一化、来源 allowlist、提示注入、AI Schema、事件聚类、D1 幂等、公开页面、匿名偏好和无邮箱 RSS。
 
+### 许可
+
+当前仓库尚未附加开源 LICENSE。源码公开可读，但不自动授予复制、修改或分发权。如需开放复用，请由项目所有者选择 MIT、Apache-2.0 或其他合适许可证。
+
 ### 下一步
 
 - 将来源扩展到 100-300 个官方、研究、GitHub、Hugging Face、Reddit 与 YouTube 信号源。
@@ -339,6 +343,10 @@ npm run lint
 npm test
 git diff --check
 ```
+
+### License status
+
+This repository does not currently include an open-source license. The source is publicly readable, but reuse, modification, and redistribution are not automatically granted until the owner selects a license.
 
 ### Live site
 
