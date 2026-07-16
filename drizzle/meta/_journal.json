@@ -1,0 +1,27 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1784084896880,
+      "tag": "0000_typical_surge",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1784085602095,
+      "tag": "0001_reflective_electro",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1784087319070,
+      "tag": "0002_known_menace",
+      "breakpoints": true
+    }
+  ]
+}

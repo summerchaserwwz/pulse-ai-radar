@@ -1,0 +1,87 @@
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "pulse-ai-radar",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-07-15",
+  "compatibility_flags": ["nodejs_compat"],
+  "workers_dev": true,
+  "observability": {
+    "enabled": true
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "pulse-ai",
+      "database_id": "cc0bfb5c-4d89-4c44-9177-23c387fb3471",
+      "migrations_dir": "../../drizzle"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "RAW_BUCKET",
+      "bucket_name": "pulse-ai-raw"
+    }
+  ],
+  "vectorize": [
+    {
+      "binding": "EVENT_INDEX",
+      "index_name": "pulse-ai-events"
+    }
+  ],
+  "ai": {
+    "binding": "AI"
+  },
+  "queues": {
+    "producers": [
+      {
+        "binding": "SOURCE_FETCH_QUEUE",
+        "queue": "pulse-ai-source-fetch"
+      },
+      {
+        "binding": "ITEM_ENRICH_QUEUE",
+        "queue": "pulse-ai-item-enrich"
+      },
+      {
+        "binding": "EVENT_CLUSTER_QUEUE",
+        "queue": "pulse-ai-event-cluster"
+      },
+      {
+        "binding": "DELIVERY_QUEUE",
+        "queue": "pulse-ai-delivery"
+      }
+    ],
+    "consumers": [
+      {
+        "queue": "pulse-ai-source-fetch",
+        "max_batch_size": 1,
+        "max_batch_timeout": 5,
+        "max_retries": 3,
+        "dead_letter_queue": "pulse-ai-source-fetch-dlq"
+      },
+      {
+        "queue": "pulse-ai-item-enrich",
+        "max_batch_size": 10,
+        "max_batch_timeout": 5,
+        "max_retries": 3,
+        "dead_letter_queue": "pulse-ai-item-enrich-dlq"
+      },
+      {
+        "queue": "pulse-ai-event-cluster",
+        "max_batch_size": 10,
+        "max_batch_timeout": 5,
+        "max_retries": 3,
+        "dead_letter_queue": "pulse-ai-event-cluster-dlq"
+      },
+      {
+        "queue": "pulse-ai-delivery",
+        "max_batch_size": 1,
+        "max_batch_timeout": 5,
+        "max_retries": 3,
+        "dead_letter_queue": "pulse-ai-delivery-dlq"
+      }
+    ]
+  },
+  "triggers": {
+    "crons": ["*/5 * * * *"]
+  }
+}

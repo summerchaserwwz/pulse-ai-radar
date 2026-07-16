@@ -1,0 +1,4 @@
+# Local development only. Never reuse these values in production.
+APP_ORIGIN=http://localhost:3000
+AUTH_SIGNING_KEY=local-development-only-change-me-0123456789abcdef
+CRON_SECRET=local-development-cron-secret-change-me
