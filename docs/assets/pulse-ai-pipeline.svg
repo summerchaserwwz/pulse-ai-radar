@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
+  <title id="title">PULSE/AI 自动采集数据管线</title>
+  <desc id="desc">Cloudflare Cron 每五分钟触发信息源采集、中文翻译、证据聚类、质量门和个性化输出。</desc>
+  <rect width="1200" height="630" fill="#090b0a"/>
+  <g stroke="#202622" stroke-width="1" opacity="0.55">
+    <path d="M0 90H1200M0 180H1200M0 270H1200M0 360H1200M0 450H1200M0 540H1200"/>
+    <path d="M100 0V630M300 0V630M500 0V630M700 0V630M900 0V630M1100 0V630"/>
+  </g>
+  <g font-family="Inter, PingFang SC, Microsoft YaHei, sans-serif">
+    <text x="72" y="82" fill="#6ee7b7" font-size="18" font-weight="600" letter-spacing="1.5">PULSE/AI · AUTOMATED DATA PLANE</text>
+    <text x="72" y="132" fill="#f8fbf9" font-size="40" font-weight="650">每 5 分钟，把全球 AI 信号变成可追溯的中文事件</text>
+    <text x="72" y="174" fill="#929d96" font-size="20">无需 Codex 在线 · 无需人工编辑 · 低置信内容自动隔离</text>
+
+    <g transform="translate(72 250)">
+      <g>
+        <rect width="188" height="178" rx="12" fill="#101311" stroke="#303732"/>
+        <circle cx="28" cy="30" r="6" fill="#34d399"/>
+        <text x="46" y="36" fill="#c5cec8" font-size="15" font-weight="600">01 / CAPTURE</text>
+        <text x="22" y="83" fill="#f8fbf9" font-size="24" font-weight="650">来源采集</text>
+        <text x="22" y="115" fill="#929d96" font-size="15">RSS · Atom · API</text>
+        <text x="22" y="143" fill="#6d7871" font-size="13">HTTPS allowlist</text>
+      </g>
+      <path d="M188 89H218" stroke="#34d399" stroke-width="2"/>
+      <path d="m211 82 7 7-7 7" fill="none" stroke="#34d399" stroke-width="2"/>
+      <g transform="translate(218)">
+        <rect width="188" height="178" rx="12" fill="#101311" stroke="#303732"/>
+        <circle cx="28" cy="30" r="6" fill="#34d399"/>
+        <text x="46" y="36" fill="#c5cec8" font-size="15" font-weight="600">02 / ENRICH</text>
+        <text x="22" y="83" fill="#f8fbf9" font-size="24" font-weight="650">中文理解</text>
+        <text x="22" y="115" fill="#929d96" font-size="15">翻译 · 摘要 · 实体</text>
+        <text x="22" y="143" fill="#6d7871" font-size="13">Workers AI</text>
+      </g>
+      <path d="M406 89H436" stroke="#34d399" stroke-width="2"/>
+      <path d="m429 82 7 7-7 7" fill="none" stroke="#34d399" stroke-width="2"/>
+      <g transform="translate(436)">
+        <rect width="188" height="178" rx="12" fill="#101311" stroke="#303732"/>
+        <circle cx="28" cy="30" r="6" fill="#34d399"/>
+        <text x="46" y="36" fill="#c5cec8" font-size="15" font-weight="600">03 / CLUSTER</text>
+        <text x="22" y="83" fill="#f8fbf9" font-size="24" font-weight="650">事件聚类</text>
+        <text x="22" y="115" fill="#929d96" font-size="15">指纹 · 语义 · 证据</text>
+        <text x="22" y="143" fill="#6d7871" font-size="13">D1 + Vectorize</text>
+      </g>
+      <path d="M624 89H654" stroke="#34d399" stroke-width="2"/>
+      <path d="m647 82 7 7-7 7" fill="none" stroke="#34d399" stroke-width="2"/>
+      <g transform="translate(654)">
+        <rect width="188" height="178" rx="12" fill="#101311" stroke="#303732"/>
+        <circle cx="28" cy="30" r="6" fill="#34d399"/>
+        <text x="46" y="36" fill="#c5cec8" font-size="15" font-weight="600">04 / VERIFY</text>
+        <text x="22" y="83" fill="#f8fbf9" font-size="24" font-weight="650">质量门</text>
+        <text x="22" y="115" fill="#929d96" font-size="15">权威 · 置信 · 隔离</text>
+        <text x="22" y="143" fill="#6d7871" font-size="13">Evidence Gate</text>
+      </g>
+      <path d="M842 89H872" stroke="#34d399" stroke-width="2"/>
+      <path d="m865 82 7 7-7 7" fill="none" stroke="#34d399" stroke-width="2"/>
+      <g transform="translate(872)">
+        <rect width="184" height="178" rx="12" fill="#0f1a15" stroke="#34d399"/>
+        <circle cx="28" cy="30" r="6" fill="#6ee7b7"/>
+        <text x="46" y="36" fill="#6ee7b7" font-size="15" font-weight="600">05 / DELIVER</text>
+        <text x="22" y="83" fill="#f8fbf9" font-size="24" font-weight="650">个性化输出</text>
+        <text x="22" y="115" fill="#b8dacb" font-size="15">Web · RSS · 分享页</text>
+        <text x="22" y="143" fill="#7fa995" font-size="13">Cursor-paged history</text>
+      </g>
+    </g>
+
+    <rect x="72" y="490" width="1056" height="70" rx="10" fill="#0f1512" stroke="#203c30"/>
+    <text x="98" y="520" fill="#6ee7b7" font-size="14" font-weight="600">RUNS ON CLOUDFLARE</text>
+    <text x="98" y="546" fill="#c5cec8" font-size="15">Cron Triggers · Queues · Workers AI · D1 · Vectorize · R2</text>
+    <text x="1100" y="538" fill="#34d399" font-size="18" text-anchor="end">AUTONOMOUS</text>
+  </g>
+</svg>

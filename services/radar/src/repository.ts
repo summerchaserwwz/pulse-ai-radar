@@ -496,8 +496,23 @@ export async function saveEvent(
   await env.DB.batch(statements);
 }
 
-export async function listRadarEvents(env: RadarEnv, limit = 50) {
-  const bounded = Math.max(1, Math.min(limit, 100));
+export async function countRadarEvents(env: RadarEnv) {
+  const row = await env.DB.prepare(
+    `SELECT COUNT(*) AS count
+     FROM events e
+     WHERE e.quarantined = 0
+       AND EXISTS (
+         SELECT 1 FROM event_items evidence
+         JOIN source_items evidence_item ON evidence_item.id = evidence.source_item_id
+         WHERE evidence.event_id = e.id AND evidence_item.processing_status = 'enriched'
+       )`,
+  ).first<{ count: number }>();
+  return Number(row?.count ?? 0);
+}
+
+export async function listRadarEvents(env: RadarEnv, limit = 50, offset = 0) {
+  const bounded = Math.max(1, Math.min(Math.floor(limit), 51));
+  const boundedOffset = Math.max(0, Math.floor(offset));
   const result = await env.DB.prepare(
     `SELECT e.id, e.slug, e.title_zh, e.title_original, e.summary_zh,
             e.why_it_matters, e.status, e.confidence,
@@ -516,9 +531,9 @@ export async function listRadarEvents(env: RadarEnv, limit = 50) {
        )
      GROUP BY e.id
      ORDER BY e.trend_score DESC, e.published_at DESC
-     LIMIT ?`,
+     LIMIT ? OFFSET ?`,
   )
-    .bind(Date.now(), bounded)
+    .bind(Date.now(), bounded, boundedOffset)
     .all<RadarEventRow>();
   return result.results ?? [];
 }
@@ -558,8 +573,8 @@ export async function getEvent(env: RadarEnv, eventId: string) {
   return { event, evidence: evidence.results ?? [] };
 }
 
-export async function listRadarEventDetails(env: RadarEnv, limit = 50) {
-  const events = await listRadarEvents(env, limit);
+export async function listRadarEventDetails(env: RadarEnv, limit = 50, offset = 0) {
+  const events = await listRadarEvents(env, limit, offset);
   if (events.length === 0) return [];
   const placeholders = events.map(() => "?").join(", ");
   const evidenceResult = await env.DB.prepare(

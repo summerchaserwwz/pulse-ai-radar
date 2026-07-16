@@ -606,8 +606,8 @@ export type PublicRadarEvent = RadarEventRow & {
   }>;
 };
 
-export async function publicRadarEvents(env: RadarEnv, limit: number) {
-  const details = await listRadarEventDetails(env, limit);
+export async function publicRadarEvents(env: RadarEnv, limit: number, offset = 0) {
+  const details = await listRadarEventDetails(env, limit, offset);
   return details.map(
     ({ event, evidence }): PublicRadarEvent => ({
         ...event,

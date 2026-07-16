@@ -658,6 +658,10 @@ export default function RadarApp() {
   const [radarSignals, setRadarSignals] = useState<Signal[]>([]);
   const [dataMode, setDataMode] = useState<"demo" | "live">("demo");
   const [radarError, setRadarError] = useState(false);
+  const [nextRadarCursor, setNextRadarCursor] = useState<string | null>(null);
+  const [hasMoreSignals, setHasMoreSignals] = useState(false);
+  const [totalSignalCount, setTotalSignalCount] = useState(0);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [customInterest, setCustomInterest] = useState("");
   const [isMobile, setIsMobile] = useState(false);
   const searchRef = useRef<HTMLInputElement>(null);
@@ -679,16 +683,34 @@ export default function RadarApp() {
     window.requestAnimationFrame(() => detailTriggerRef.current?.focus({ preventScroll: true }));
   }, []);
 
-  const loadRadar = useCallback(async (signal?: AbortSignal) => {
-    const response = await fetch("/api/radar", { cache: "no-store", signal });
+  const loadRadar = useCallback(async (
+    signal?: AbortSignal,
+    options: { cursor?: string | null; append?: boolean } = {},
+  ) => {
+    const params = new URLSearchParams({ limit: "24" });
+    if (options.cursor) params.set("cursor", options.cursor);
+    const response = await fetch(`/api/radar?${params}`, { cache: "no-store", signal });
     if (!response.ok) throw new Error("雷达数据服务不可用");
     const data = (await response.json()) as {
       signals?: Signal[];
       mode?: "demo" | "live";
+      page?: {
+        nextCursor?: string | null;
+        hasMore?: boolean;
+        total?: number;
+      };
     };
     const nextSignals = Array.isArray(data.signals) ? data.signals : [];
-    setRadarSignals(nextSignals);
-    setDataMode(data.mode === "live" && nextSignals.length > 0 ? "live" : "demo");
+    setRadarSignals((current) => {
+      if (!options.append) return nextSignals;
+      const merged = new Map(current.map((item) => [item.id, item]));
+      for (const item of nextSignals) merged.set(item.id, item);
+      return Array.from(merged.values());
+    });
+    setNextRadarCursor(data.page?.nextCursor ?? null);
+    setHasMoreSignals(Boolean(data.page?.hasMore));
+    setTotalSignalCount(Math.max(0, Number(data.page?.total ?? nextSignals.length)));
+    setDataMode(data.mode === "live" && (nextSignals.length > 0 || options.append) ? "live" : "demo");
     setRadarError(false);
     return nextSignals.length;
   }, []);
@@ -1026,6 +1048,19 @@ export default function RadarApp() {
     }
   };
 
+  const handleLoadMore = async () => {
+    if (!nextRadarCursor || loadingMore || !hasMoreSignals) return;
+    setLoadingMore(true);
+    try {
+      const count = await loadRadar(undefined, { cursor: nextRadarCursor, append: true });
+      showToast(count > 0 ? `继续载入 ${count} 个事件` : "已加载全部事件");
+    } catch {
+      showToast("更多事件加载失败，请稍后重试");
+    } finally {
+      setLoadingMore(false);
+    }
+  };
+
   const createRss = async () => {
     try {
       const response = await fetch("/api/rss", {
@@ -1121,41 +1156,72 @@ export default function RadarApp() {
   };
 
   const renderSignalList = () => (
-    <div className={`signal-list ${denseMode ? "signal-list-dense" : ""}`}>
-      {filteredSignals.length ? (
-        filteredSignals.map((signal) => (
-          <SignalCard
-            key={signal.id}
-            signal={signal}
-            autoTranslate={autoTranslate}
-            selected={selectedSignalId === signal.id}
-            bookmarked={bookmarks.includes(signal.id)}
-            tracked={tracked.includes(signal.id)}
-            onSelect={(opener) => openDetail(signal.id, opener)}
-            onBookmark={() => toggleBookmark(signal.id)}
-            onTrack={() => toggleTrack(signal.id)}
-            onHide={() => hideSignal(signal.id)}
-          />
-        ))
-      ) : (
-        <div className="empty-state">
-          <Inbox size={24} />
-          <h3>没有匹配的信号</h3>
-          <p>调整关键词、分类或确认级别后再试。</p>
-          <button
-            className="secondary-button"
-            type="button"
-            onClick={() => {
-              setQuery("");
-              setCategory("全部");
-              setVerifiedOnly(false);
-            }}
-          >
-            清除筛选
-          </button>
+    <>
+      <div className={`signal-list ${denseMode ? "signal-list-dense" : ""}`}>
+        {filteredSignals.length ? (
+          filteredSignals.map((signal) => (
+            <SignalCard
+              key={signal.id}
+              signal={signal}
+              autoTranslate={autoTranslate}
+              selected={selectedSignalId === signal.id}
+              bookmarked={bookmarks.includes(signal.id)}
+              tracked={tracked.includes(signal.id)}
+              onSelect={(opener) => openDetail(signal.id, opener)}
+              onBookmark={() => toggleBookmark(signal.id)}
+              onTrack={() => toggleTrack(signal.id)}
+              onHide={() => hideSignal(signal.id)}
+            />
+          ))
+        ) : (
+          <div className="empty-state">
+            <Inbox size={24} />
+            <h3>没有匹配的信号</h3>
+            <p>调整关键词、分类或确认级别后再试。</p>
+            <button
+              className="secondary-button"
+              type="button"
+              onClick={() => {
+                setQuery("");
+                setCategory("全部");
+                setVerifiedOnly(false);
+              }}
+            >
+              清除筛选
+            </button>
+          </div>
+        )}
+      </div>
+      {dataMode === "live" && radarSignals.length > 0 ? (
+        <div className="feed-progress" aria-live="polite">
+          <div>
+            <span>
+              已载入 <strong>{radarSignals.length}</strong> / {totalSignalCount || radarSignals.length} 个可读事件
+            </span>
+            <div className="feed-progress-track" aria-hidden="true">
+              <span
+                style={{
+                  width: `${Math.min(100, (radarSignals.length / Math.max(1, totalSignalCount)) * 100)}%`,
+                }}
+              />
+            </div>
+          </div>
+          {hasMoreSignals ? (
+            <button
+              className="secondary-button"
+              type="button"
+              onClick={handleLoadMore}
+              disabled={loadingMore}
+            >
+              <RefreshCw size={14} className={loadingMore ? "spin" : ""} />
+              {loadingMore ? "载入中" : "继续加载"}
+            </button>
+          ) : (
+            <span className="feed-complete"><Check size={13} /> 已加载全部</span>
+          )}
         </div>
-      )}
-    </div>
+      ) : null}
+    </>
   );
 
   const renderFeedToolbar = () => (
@@ -1257,7 +1323,9 @@ export default function RadarApp() {
           <span className="section-kicker">自上次访问以来</span>
           <h2>值得现在知道</h2>
         </div>
-        <span className="section-count">{filteredSignals.length} 个事件</span>
+        <span className="section-count">
+          当前显示 {filteredSignals.length} · 全库 {totalSignalCount || allSignals.length}
+        </span>
       </div>
       {renderFeedToolbar()}
       {renderSignalList()}
@@ -1266,30 +1334,21 @@ export default function RadarApp() {
 
   const renderRadar = () => (
     <>
-      <div className="radar-map-card">
-        <div className="radar-copy">
+      <div className="radar-overview-card">
+        <div className="radar-overview-copy">
           <span className="section-kicker">
             {dataMode === "live" ? "真实信号场" : "演示信号场"}
           </span>
-          <h2>从帖子噪音里识别事件变化</h2>
+          <h2>完整历史，持续积累</h2>
           <p>
-            同一事件的官方公告、论文、仓库与社区讨论会被合并为一条时间线，并按权威度、独立佐证与兴趣匹配排序。
+            页面按游标逐页读取 D1 中的可见事件，不再截断在前 100 条；继续加载即可回看完整历史。
           </p>
-          <div className="radar-legend">
-            <span><i className="legend-dot legend-hot" /> 高关注</span>
-            <span><i className="legend-dot legend-normal" /> 持续增长</span>
-            <span><i className="legend-dot legend-muted" /> 观察中</span>
-          </div>
         </div>
-        <div className="radar-field" aria-label="全球信号分布示意">
-          <span className="radar-ring ring-1" />
-          <span className="radar-ring ring-2" />
-          <span className="radar-ring ring-3" />
-          <span className="radar-sweep" />
-          <span className="radar-point point-1"><i />模型发布</span>
-          <span className="radar-point point-2"><i />开发工具</span>
-          <span className="radar-point point-3"><i />政策监管</span>
-          <span className="radar-center"><Radio size={17} /></span>
+        <div className="radar-overview-metrics" aria-label="雷达数据概览">
+          <div><span>可读事件</span><strong>{totalSignalCount || allSignals.length}</strong><small>持续积累</small></div>
+          <div><span>当前载入</span><strong>{allSignals.length}</strong><small>按需分页</small></div>
+          <div><span>信息来源</span><strong>{sourceCount}</strong><small>原文可追溯</small></div>
+          <div><span>采集周期</span><strong>5m</strong><small>Cloudflare Cron</small></div>
         </div>
       </div>
 
@@ -1586,10 +1645,17 @@ export default function RadarApp() {
         <div className="setting-list">
           <div className="setting-static-row">
             <span>
-              <strong>网站自动刷新</strong>
-              <small>手动刷新时立即获取最新事件</small>
+              <strong>雷达采集周期</strong>
+              <small>Cloudflare 后台独立运行，不依赖浏览器</small>
             </span>
             <span className="fixed-setting-value">最长 5 分钟</span>
+          </div>
+          <div className="setting-static-row">
+            <span>
+              <strong>页面数据</strong>
+              <small>打开页面或点击刷新时同步，历史可持续加载</small>
+            </span>
+            <span className="fixed-setting-value">游标分页</span>
           </div>
           <div className="setting-static-row">
             <span><strong>速报生成</strong><small>按兴趣、趋势和证据自动重排</small></span>
@@ -1831,7 +1897,9 @@ export default function RadarApp() {
           </label>
           <div className="topbar-status">
             <span>
-              <CircleDot size={13} /> {allSignals.length} 个{dataMode === "live" ? "真实事件" : "演示样例"}
+              <CircleDot size={13} /> {dataMode === "live"
+                ? `${radarSignals.length} / ${totalSignalCount || radarSignals.length} 个真实事件`
+                : `${allSignals.length} 个演示样例`}
             </span>
             <span className="topbar-divider" />
             <span>{profileError ? "偏好同步异常" : `同步于 ${syncedAt}`}</span>

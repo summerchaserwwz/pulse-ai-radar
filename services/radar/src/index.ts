@@ -10,7 +10,7 @@ import {
   schedulePipeline,
   sendConfiguredTestDelivery,
 } from "./pipeline.ts";
-import { getEvent, setSubscriptionStatus } from "./repository.ts";
+import { countRadarEvents, getEvent, setSubscriptionStatus } from "./repository.ts";
 import { privateRssResponse } from "./rss.ts";
 import { SOURCES } from "./sources.ts";
 
@@ -169,9 +169,27 @@ async function fetchHandler(request: Request, env: RadarEnv) {
 
   if (request.method === "GET" && url.pathname === "/v1/radar") {
     const requested = Number(url.searchParams.get("limit") ?? "30");
-    const limit = Number.isFinite(requested) ? Math.max(1, Math.min(100, requested)) : 30;
-    const events = await publicRadarEvents(env, limit);
-    return json({ events, generatedAt: new Date().toISOString() });
+    const requestedOffset = Number(url.searchParams.get("offset") ?? "0");
+    const limit = Number.isFinite(requested) ? Math.max(1, Math.min(50, Math.floor(requested))) : 30;
+    const offset = Number.isFinite(requestedOffset)
+      ? Math.max(0, Math.floor(requestedOffset))
+      : 0;
+    const [rows, total] = await Promise.all([
+      publicRadarEvents(env, limit + 1, offset),
+      countRadarEvents(env),
+    ]);
+    const hasMore = rows.length > limit;
+    const events = rows.slice(0, limit);
+    return json({
+      events,
+      page: {
+        offset,
+        nextOffset: hasMore ? offset + events.length : null,
+        hasMore,
+        total,
+      },
+      generatedAt: new Date().toISOString(),
+    });
   }
 
   if (request.method === "GET" && url.pathname.startsWith("/v1/events/")) {

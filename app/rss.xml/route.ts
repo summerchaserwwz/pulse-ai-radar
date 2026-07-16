@@ -62,7 +62,7 @@ export async function GET(request: Request) {
     hidden = feedback.results?.map((row) => row.signal_id) ?? [];
     verifiedOnly = user?.verified_only === 1;
     try {
-      const liveSignals = await loadLiveSignals(env.DB, 60);
+      const liveSignals = await loadLiveSignals(env.DB, 50);
       if (liveSignals.length > 0) {
         inputSignals = liveSignals;
         demo = false;

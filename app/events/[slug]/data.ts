@@ -1,6 +1,6 @@
 import { cache } from "react";
 import { env } from "cloudflare:workers";
-import { loadLiveSignals } from "@/app/api/_lib/radar";
+import { loadLiveSignal } from "@/app/api/_lib/radar";
 import { signals, type Signal } from "@/shared/signals";
 
 type EventIdentityRow = {
@@ -42,8 +42,7 @@ export const loadPublicSignal = cache(async (slug: string): Promise<Signal | nul
       .first<EventIdentityRow>();
     if (!identity) return null;
 
-    const liveSignals = await loadLiveSignals(env.DB, 100);
-    return liveSignals.find((signal) => signal.id === identity.id) ?? null;
+    return await loadLiveSignal(env.DB, identity.id);
   } catch {
     return null;
   }

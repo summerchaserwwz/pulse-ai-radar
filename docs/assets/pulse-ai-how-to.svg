@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
+  <title id="title">PULSE/AI 三步使用指南</title>
+  <desc id="desc">选择兴趣、阅读事件、追踪与订阅三个使用步骤。</desc>
+  <rect width="1200" height="630" fill="#090b0a"/>
+  <g font-family="Inter, PingFang SC, Microsoft YaHei, sans-serif">
+    <text x="70" y="78" fill="#6ee7b7" font-size="18" font-weight="600" letter-spacing="1.5">HOW TO USE PULSE/AI</text>
+    <text x="70" y="132" fill="#f8fbf9" font-size="42" font-weight="650">三步，把信息流变成你的 AI 情报工作台</text>
+    <text x="70" y="174" fill="#929d96" font-size="20">不注册邮箱也能开始；所有关键判断都能回到原文核对。</text>
+
+    <g transform="translate(70 236)">
+      <g>
+        <rect width="326" height="260" rx="14" fill="#101311" stroke="#303732"/>
+        <text x="24" y="46" fill="#34d399" font-size="15" font-weight="650">STEP 01</text>
+        <text x="24" y="94" fill="#f8fbf9" font-size="29" font-weight="650">选择兴趣</text>
+        <text x="24" y="132" fill="#929d96" font-size="16">模型、Agent、AI Coding、</text>
+        <text x="24" y="158" fill="#929d96" font-size="16">公司、人物或任意关键词。</text>
+        <rect x="24" y="192" width="88" height="34" rx="7" fill="#0f1a15" stroke="#34d399"/>
+        <text x="68" y="214" fill="#6ee7b7" font-size="13" text-anchor="middle">AI Coding</text>
+        <rect x="122" y="192" width="75" height="34" rx="7" fill="#151917" stroke="#303732"/>
+        <text x="159" y="214" fill="#c5cec8" font-size="13" text-anchor="middle">Agent</text>
+      </g>
+      <path d="M326 130H363" stroke="#34d399" stroke-width="2"/>
+      <path d="m355 122 8 8-8 8" fill="none" stroke="#34d399" stroke-width="2"/>
+      <g transform="translate(363)">
+        <rect width="326" height="260" rx="14" fill="#101311" stroke="#303732"/>
+        <text x="24" y="46" fill="#34d399" font-size="15" font-weight="650">STEP 02</text>
+        <text x="24" y="94" fill="#f8fbf9" font-size="29" font-weight="650">读懂事件</text>
+        <text x="24" y="132" fill="#929d96" font-size="16">先看“为什么重要”，再检查</text>
+        <text x="24" y="158" fill="#929d96" font-size="16">原文、置信度与证据矩阵。</text>
+        <rect x="24" y="190" width="278" height="46" rx="8" fill="#0f1512" stroke="#203c30"/>
+        <circle cx="46" cy="213" r="5" fill="#34d399"/>
+        <text x="62" y="218" fill="#b8dacb" font-size="14">已确认 · 3 条证据 · 原文可追溯</text>
+      </g>
+      <path d="M689 130H726" stroke="#34d399" stroke-width="2"/>
+      <path d="m718 122 8 8-8 8" fill="none" stroke="#34d399" stroke-width="2"/>
+      <g transform="translate(726)">
+        <rect width="334" height="260" rx="14" fill="#0f1a15" stroke="#34d399"/>
+        <text x="24" y="46" fill="#6ee7b7" font-size="15" font-weight="650">STEP 03</text>
+        <text x="24" y="94" fill="#f8fbf9" font-size="29" font-weight="650">持续追踪</text>
+        <text x="24" y="132" fill="#b8dacb" font-size="16">收藏、追踪、减少此类，</text>
+        <text x="24" y="158" fill="#b8dacb" font-size="16">或生成你的私有 RSS。</text>
+        <g transform="translate(24 192)">
+          <rect width="88" height="36" rx="7" fill="#34d399"/>
+          <text x="44" y="23" fill="#07110c" font-size="13" font-weight="650" text-anchor="middle">追踪事件</text>
+          <rect x="98" width="94" height="36" rx="7" fill="#151917" stroke="#303732"/>
+          <text x="145" y="23" fill="#c5cec8" font-size="13" text-anchor="middle">生成 RSS</text>
+        </g>
+      </g>
+    </g>
+
+    <text x="70" y="558" fill="#6d7871" font-size="15">LIVE WEB</text>
+    <text x="70" y="586" fill="#c5cec8" font-size="17">pulse-ai-web.sumerchaser.workers.dev</text>
+    <text x="1130" y="586" fill="#34d399" font-size="17" text-anchor="end">GLOBAL SIGNALS, DELIVERED IN CHINESE.</text>
+  </g>
+</svg>

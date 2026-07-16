@@ -31,6 +31,109 @@ test("服务端渲染完整 PULSE/AI 产品界面且不残留 starter", async ()
   }
 });
 
+test("雷达 API 使用游标读取全部历史事件，不再截断为前 100 条", async () => {
+  const runtime = await createBuiltRuntime();
+  try {
+    const now = Date.now();
+    await runtime.db
+      .prepare(
+        `INSERT INTO sources
+          (id, name, kind, feed_url, homepage_url, region, language, authority, enabled, official, created_at, updated_at)
+         VALUES (?, ?, 'rss', ?, ?, '全球', 'en', 100, 1, 1, ?, ?)`,
+      )
+      .bind(
+        "pagination-source",
+        "Pagination Source",
+        "https://pagination.example/feed.xml",
+        "https://pagination.example/",
+        now,
+        now,
+      )
+      .run();
+
+    for (let index = 0; index < 121; index += 1) {
+      const id = `page-event-${String(index).padStart(3, "0")}`;
+      const itemId = `page-item-${String(index).padStart(3, "0")}`;
+      const publishedAt = now - index * 60_000;
+      await runtime.db
+        .prepare(
+          `INSERT INTO source_items
+            (id, source_id, external_id, canonical_url, title_original, summary_original, language,
+             content_hash, processing_status, published_at, created_at)
+           VALUES (?, 'pagination-source', ?, ?, ?, ?, 'en', ?, 'enriched', ?, ?)`,
+        )
+        .bind(
+          itemId,
+          itemId,
+          `https://pagination.example/items/${index}`,
+          `Original event ${index}`,
+          `Original summary ${index}`,
+          `hash-${index}`,
+          publishedAt,
+          now,
+        )
+        .run();
+      await runtime.db
+        .prepare(
+          `INSERT INTO events
+            (id, slug, fingerprint, title_zh, title_original, summary_zh, why_it_matters,
+             status, confidence, trend_score, region, quarantined, published_at, created_at, updated_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?, '已确认', 95, ?, '全球', 0, ?, ?, ?)`,
+        )
+        .bind(
+          id,
+          id,
+          `fingerprint-${index}`,
+          `分页事件 ${index}`,
+          `Original event ${index}`,
+          `用于验证无限历史分页的摘要 ${index}`,
+          "验证所有合格事件都可以通过游标访问。",
+          1000 - index,
+          publishedAt,
+          now,
+          now,
+        )
+        .run();
+      await runtime.db
+        .prepare(
+          `INSERT INTO event_items (event_id, source_item_id, support_kind, created_at)
+           VALUES (?, ?, 'supports', ?)`,
+        )
+        .bind(id, itemId, now)
+        .run();
+    }
+
+    const ids = new Set();
+    let cursor = null;
+    let pageCount = 0;
+    do {
+      const query = new URLSearchParams({ limit: "24" });
+      if (cursor) query.set("cursor", cursor);
+      const response = await runtime.fetch(`/api/radar?${query}`);
+      assert.equal(response.status, 200);
+      const body = await response.json();
+      assert.equal(body.mode, "live");
+      assert.equal(body.page.total, 121);
+      for (const signal of body.signals) {
+        assert.equal(ids.has(signal.id), false, "分页不能返回重复事件");
+        ids.add(signal.id);
+      }
+      cursor = body.page.nextCursor;
+      pageCount += 1;
+      assert.ok(pageCount < 10, "游标必须最终结束");
+    } while (cursor);
+
+    assert.equal(ids.size, 121);
+    assert.ok(pageCount > 4, "测试数据必须跨越旧的 100 条边界");
+
+    const invalid = await runtime.fetch("/api/radar?cursor=not-valid-json");
+    assert.equal(invalid.status, 400);
+    assert.equal((await invalid.json()).code, "invalid_cursor");
+  } finally {
+    await runtime.dispose();
+  }
+});
+
 test("首次无 cookie 保存偏好后身份保持一致并可读回", async () => {
   const runtime = await createBuiltRuntime();
   try {
